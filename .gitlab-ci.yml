@@ -2,12 +2,10 @@ stages:
   - run_tests
   - deploy
 
-
 variables:
   AOSP_BRANCH: "android-X.0.0_rXX"
   MANIFEST_URL: "https://android.googlesource.com/platform/manifest"
-  
-  
+    
 run_robot_tests:
   stage: run_tests
   tags:
