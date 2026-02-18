@@ -1,0 +1,53 @@
+stages:
+  - run_tests
+  - deploy
+
+
+variables:
+  AOSP_BRANCH: "android-X.0.0_rXX"
+  MANIFEST_URL: "https://android.googlesource.com/platform/manifest"
+  
+  
+run_robot_tests:
+  stage: run_tests
+  tags:
+    - wpmc-cm-test
+  script:
+    - cd \root\
+    - python -m venv venv
+    - set activatePath=venv\Scripts\activate.bat
+    - if not exist %activatePath% (
+        echo Activation script not found at %activatePath%
+        exit /b 1
+      )
+    - call %activatePath%
+    - python -m pip install --index-url https://artifactory.pte.{}.one:443/api/pypi/pip-virtual/simple --trusted-host artifactory.pte.{}.one:443 pyyaml
+    - cd TestExecution\TestSuites
+    - robot Test.robot
+    - cd ..\..\..
+
+  artifacts:
+    paths:
+      - /Logs/*
+      - /TestConfiguration/InputFiles/*
+      - /TestConfiguration/Specifications_Data/*
+      - /TestExecution/TestSuites/*
+    expire_in: 1 week
+    when: always
+
+upload_to_github:
+  stage: deploy
+  tags:
+    - wpmc-cm-test
+  script:
+    - git config --global user.email "cicdt@example.com"
+    - git config --global user.name "CICD"
+    - git clone https://%GITHUB_TOKEN%@github.com/<your-username>/<your-repo>.git github-repo
+    - xcopy /E /Y /I "\TestConfiguration\InputFiles\*" "github-repo\InputFiles\"
+    - xcopy /E /Y /I "\TestConfiguration\Specifications_Data\*" "github-repo\Specifications_Data\"
+    - cd github-repo
+    - git add .
+    - git commit -m "Add InputFiles and Specifications_Data from GitLab CI"
+    - git push origin main
+  only:
+    - main
