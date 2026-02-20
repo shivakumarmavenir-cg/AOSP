@@ -54,7 +54,7 @@ run_robot_tests:
   script:
     - source venv/bin/activate
     - pip install pyyaml
-    # - behave --no-capture features/epp_status_and_custom_scan_lms.feature need to add realtime testcases to be executed.
+    # - behave --no-capture features/aosp.feature need to add realtime testcases to be executed.
   artifacts:
     paths:
       - logs/*
